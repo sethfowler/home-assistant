@@ -1,35 +1,29 @@
-# This is a Dockerfile for home-assistant which includes node and other useful
+# This is a Dockerfile for Home Assistant which includes node and other useful
 # tools by default. You can install more packages without rebuilding the image
 # by editing /config/install.sh in the container.
-FROM debian:jessie-slim
+FROM python:3.5
 
-# This Dockerfile is based on both the original home-assistant Dockerfile and
-# the homebridge Dockerfile.
+# This Dockerfile is based on both the original Home Assistant Dockerfile and
+# the Homebridge Dockerfile.
 MAINTAINER Seth Fowler <seth@blackhail.net>
 
-# Debugging helpers
-##################################################
-RUN alias ll='ls -alG'
-
-# Set environment variables
-##################################################
-ENV DEBIAN_FRONTEND noninteractive
-ENV TERM xterm
-
-# Install tools
+# Ensure packages are up-to-date
 ##################################################
 RUN apt-get update; \
     apt-get install -y apt-utils apt-transport-https; \
-    apt-get upgrade -y; \
-    apt-get install -y locales curl wget; \
-    apt-get install -y libnss-mdns avahi-discover libavahi-compat-libdnssd-dev libkrb5-dev; \
-    apt-get install -y nano vim \
-    apt-get install -y python3
+    apt-get upgrade -y
+
+# Install tools
+##################################################
+RUN apt-get install -y curl wget nano vim
 
 # Install node
+##################################################
 RUN curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -; \
     apt-get install -y nodejs
 
+# Set up Home Assistant as usual
+##################################################
 VOLUME /config
 
 RUN mkdir -p /usr/src/app
