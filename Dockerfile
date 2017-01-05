@@ -19,7 +19,7 @@ RUN apt-get install -y curl wget nano vim
 
 # Install node
 ##################################################
-RUN curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -; \
+RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -; \
     apt-get install -y nodejs
 
 # Set up Home Assistant as usual
