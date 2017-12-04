@@ -17,13 +17,28 @@ LABEL maintainer="Paulus Schoutsen <Paulus@PaulusSchoutsen.nl>"
 # (Added to upstream Dockerfile.)
 ##################################################
 
-# Install dependencies for node, as well as some helpful utilities for debugging
-# a live container.
-RUN apt-get install -y curl wget nano vim
+# Set environment variables
+ENV DEBIAN_FRONTEND noninteractive
+ENV TERM xterm
+
+# Install dependencies and tools. (This is from marcoraddatz/homebridge-docker.)
+RUN apt-get update; \
+    apt-get install -y apt-utils apt-transport-https; \
+    apt-get install -y curl wget; \
+    apt-get install -y libnss-mdns avahi-discover libavahi-compat-libdnssd-dev libkrb5-dev; \
+    apt-get install -y ffmpeg; \
+    apt-get install -y nano vim
 
 # Install node.
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -; \
-    apt-get install -y nodejs
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -; \
+    apt-get install -y build-essential nodejs
+
+# Install latest Homebridge
+# -------------------------------------------------------------------------
+# You can force a specific version by setting HOMEBRIDGE_VERSION
+# See https://github.com/marcoraddatz/homebridge-docker#homebridge_version
+# -------------------------------------------------------------------------
+RUN npm install -g homebridge --unsafe-perm
 
 ##################################################
 # (End of added stuff.)
@@ -52,10 +67,18 @@ COPY . .
 # (Added to upstream Dockerfile.)
 ##################################################
 
+# MISC settings. This is all configuration for homebridge.
+COPY docker-scripts/avahi-daemon.conf /etc/avahi/avahi-daemon.conf
+
+USER root
+RUN mkdir -p /var/run/dbus
+
+EXPOSE 5353 51826
+
 # Upstream uses the command below, but I've added a wrapper that does additional
-# runtime configuration and starts some additional services.
+# runtime configuration and starts homebridge.
 # CMD [ "python", "-m", "homeassistant", "--config", "/config" ]
-CMD ["./run.sh"]
+CMD ["./docker-scripts/run.sh"]
 
 ##################################################
 # (End of added stuff.)
