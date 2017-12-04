@@ -13,6 +13,22 @@ LABEL maintainer="Paulus Schoutsen <Paulus@PaulusSchoutsen.nl>"
 #ENV INSTALL_PHANTOMJS no
 #ENV INSTALL_SSOCR no
 
+##################################################
+# (Added to upstream Dockerfile.)
+##################################################
+
+# Install dependencies for node, as well as some helpful utilities for debugging
+# a live container.
+RUN apt-get install -y curl wget nano vim
+
+# Install node.
+RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -; \
+    apt-get install -y nodejs
+
+##################################################
+# (End of added stuff.)
+##################################################
+
 VOLUME /config
 
 RUN mkdir -p /usr/src/app
@@ -32,4 +48,15 @@ RUN pip3 install --no-cache-dir -r requirements_all.txt && \
 # Copy source
 COPY . .
 
-CMD [ "python", "-m", "homeassistant", "--config", "/config" ]
+##################################################
+# (Added to upstream Dockerfile.)
+##################################################
+
+# Upstream uses the command below, but I've added a wrapper that does additional
+# runtime configuration and starts some additional services.
+# CMD [ "python", "-m", "homeassistant", "--config", "/config" ]
+CMD ["./run.sh"]
+
+##################################################
+# (End of added stuff.)
+##################################################
