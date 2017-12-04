@@ -73,7 +73,11 @@ COPY docker-scripts/avahi-daemon.conf /etc/avahi/avahi-daemon.conf
 USER root
 RUN mkdir -p /var/run/dbus
 
-EXPOSE 5353 51826
+# This would be needed for homebridge, but hass requires `--net=host` anyway.
+# EXPOSE 5353 51826
+
+RUN apt-get update && \
+    apt-get install -y git
 
 # Upstream uses the command below, but I've added a wrapper that does additional
 # runtime configuration and starts homebridge.
